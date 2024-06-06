@@ -117,6 +117,8 @@
     integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
     crossorigin="anonymous"
   ></script>
+
+
   <script>
     let roommates = [];
     let gastos = [];
@@ -164,7 +166,7 @@
                         <td>${g.descripcion}</td>
                         <td>${g.monto}</td>
                         <td class="d-flex align-items-center justify-content-between">
-                            <i class="fas fa-edit text-warning" onclick="editGasto('${g.id}')" data-toggle="modal" data-target="#exampleModal"></i>
+                            <i class="fas fa-edit text-warning" onclick="editGasto('${g.id}', '${g.roommate}', '${g.descripcion}', '${g.monto}')" data-toggle="modal" data-target="#exampleModal"></i>
                             <i class="fas fa-trash-alt text-danger" onclick="deleteGasto('${g.id}')" ></i>
                         </td>
                     </tr>
@@ -207,60 +209,45 @@
         });
         imprimir();
     };
+
     const updateGasto = async () => {
-    const roommateSelected = $("#roommatesSelectModal").val();
-    const descripcion = $("#descripcionModal").val();
-    const monto = Number($("#montoModal").val());
-    const response = await fetch(`http://localhost:3000/gasto/?id=${gastoEditing}`, {
-        method: "PUT",
-        body: JSON.stringify({
-            roommate: roommateSelected,
-            descripcion,
-            monto
-        }),
-        headers: {
-            'Content-Type': 'application/json'
+        const roommateSelected = $("#roommatesSelectModal").val();
+        const descripcion = $("#descripcionModal").val();
+        const monto = Number($("#montoModal").val());
+        const response = await fetch(`http://localhost:3000/gasto?id=${gastoEditing}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                roommate: roommateSelected,
+                descripcion,
+                monto
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            gastoEditing = null;
+            imprimir();
+        } else {
+            console.log("Error updating expense:", response.statusText);
         }
-    });
-    if (response.ok) {
-        gastoEditing = null;
-        imprimir();
-    } else {
-        console.log("Error updating expense:", response.statusText);
-    }
-};
+    };
 
-
-
-
-const editGasto = async (id) => {
-    gastoEditing = id;
-    const gasto = gastos.find(g => g.id === id);
-    $("#roommatesSelectModal").val(gasto.roommate);
-    $("#descripcionModal").val(gasto.descripcion);
-    $("#montoModal").val(gasto.monto);
-    const response = await fetch(`http://localhost:3000/gasto/?id=${id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-            roommate: gasto.roommate,
-            descripcion: gasto.descripcion,
-            monto: gasto.monto
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (response.ok) {
-        gastoEditing = null;
-        imprimir();
-    } else {
-        console.log("Error updating expense:", response.statusText);
-    }
-};
-
+    const editGasto = (id, roommate, descripcion, monto) => {
+        gastoEditing = id;
+        $("#roommatesSelectModal").val(roommate);
+        $("#descripcionModal").val(descripcion);
+        $("#montoModal").val(monto);
+    };
 
     imprimir();
 </script>
+
+
+
+
+
+  
 
   <style>
     body {

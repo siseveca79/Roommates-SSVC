@@ -1,8 +1,1 @@
-[
-  {
-    "id": "604a0450-43a6-4288-8cc4-d7eea18ca377",
-    "roommate": "Sara Andre",
-    "descripcion": "Cloro",
-    "monto": 3000
-  }
-]
+[{"id":"4b4bcd67-202f-4ab7-9f4a-3cdb8e809953","roommate":"Sara Andre","descripcion":"Cloro","monto":3000},{"id":"6a1f69eb-b7c1-4629-a1e2-1f262fed6a7d","roommate":"Sara Andre","descripcion":"Cloro","monto":3000},{"id":"3cfcbd63-8860-4a41-8494-a7b5022bb733","roommate":"Sara Andre","descripcion":"Cloro","monto":3000}]
