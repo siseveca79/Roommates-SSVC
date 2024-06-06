@@ -67,25 +67,6 @@ router.post('/', (req, res) => {
     }
 });
 
-// Controlador para editar un gasto
-router.put('/', (req, res) => {
-    const dataPath = path.join(__dirname, '..', 'data', 'gastos.json');
-    try {
-        let gastos = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-        const gastoIndex = gastos.findIndex(g => g.id === req.query.id);
-
-        if (gastoIndex !== -1) {
-            gastos[gastoIndex] = { ...gastos[gastoIndex], ...req.body };
-            fs.writeFileSync(dataPath, JSON.stringify(gastos));
-            res.status(200).json(gastos[gastoIndex]);
-        } else {
-            res.status(404).json({ error: 'Expense not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating expense' });
-    }
-});
-
 // Controlador para eliminar un gasto
 router.delete('/', (req, res) => {
     const dataPath = path.join(__dirname, '..', 'data', 'gastos.json');
@@ -103,5 +84,45 @@ router.delete('/', (req, res) => {
         res.status(500).json({ error: 'Error deleting expense' });
     }
 });
+
+// Controlador para editar un gasto
+const updateExpense = (req, res) => {
+    const { id } = req.query;
+    const updatedExpense = req.body;
+
+    console.log('ID:', id);  // Verifica que el ID se esté recibiendo correctamente
+    console.log('Updated Expense:', updatedExpense);  // Verifica que el cuerpo de la solicitud se esté recibiendo correctamente
+
+    fs.readFile(path.join(__dirname, '../data/gastos.json'), 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading expenses file');
+            return;
+        }
+
+        let expenses = JSON.parse(data);
+        const expenseIndex = expenses.findIndex(e => e.id === id);
+
+        console.log('Expense Index:', expenseIndex);  // Verifica que el índice se encuentre correctamente
+
+        if (expenseIndex === -1) {
+            res.status(404).send('Expense not found');
+            return;
+        }
+
+        // Mantener el ID y combinar con los datos nuevos
+        expenses[expenseIndex] = { ...expenses[expenseIndex], ...updatedExpense };
+
+        fs.writeFile(path.join(__dirname, '../data/gastos.json'), JSON.stringify(expenses, null, 2), (err) => {
+            if (err) {
+                res.status(500).send('Error writing to expenses file');
+                return;
+            }
+
+            res.status(200).send(expenses[expenseIndex]);
+        });
+    });
+};
+
+router.put('/', updateExpense);
 
 module.exports = router;

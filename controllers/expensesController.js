@@ -33,6 +33,11 @@ const addExpense = (req, res) => {
 
 const updateExpense = (req, res) => {
     const { id } = req.query;
+    const updatedExpense = req.body;
+
+    console.log('ID:', id);  // Verifica que el ID se esté recibiendo correctamente
+    console.log('Updated Expense:', updatedExpense);  // Verifica que el cuerpo de la solicitud se esté recibiendo correctamente
+
     fs.readFile(path.join(__dirname, '../data/gastos.json'), 'utf8', (err, data) => {
         if (err) {
             res.status(500).send('Error reading expenses file');
@@ -40,11 +45,17 @@ const updateExpense = (req, res) => {
         }
         const expenses = JSON.parse(data);
         const expenseIndex = expenses.findIndex(e => e.id === id);
+
+        console.log('Expense Index:', expenseIndex);  // Verifica que el índice se encuentre correctamente
+
         if (expenseIndex === -1) {
             res.status(404).send('Expense not found');
             return;
         }
-        expenses[expenseIndex] = { id, ...req.body };
+
+        // Mantener el ID y combinar con los datos nuevos
+        expenses[expenseIndex] = { ...expenses[expenseIndex], ...updatedExpense };
+
         fs.writeFile(path.join(__dirname, '../data/gastos.json'), JSON.stringify(expenses, null, 2), (err) => {
             if (err) {
                 res.status(500).send('Error writing to expenses file');
@@ -74,4 +85,7 @@ const deleteExpense = (req, res) => {
     });
 };
 
-module.exports = { getExpenses, addExpense, updateExpense, deleteExpense };
+// Renombrar a editGasto si esta es la función que actualiza el registro
+const editGasto = updateExpense;
+
+module.exports = { getExpenses, addExpense, updateExpense: editGasto, deleteExpense };
