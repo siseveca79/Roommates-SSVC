@@ -6,14 +6,14 @@ const getRandomUser = async () => {
         const data = await response.json();
         const user = data.results[0];
         return {
-            id: user.login.uuid,
             nombre: `${user.name.first} ${user.name.last}`,
-            debe: 0,
-            recibe: 0
+            debe: Math.floor(Math.random() * 10000),
+            recibe: Math.floor(Math.random() * 10000)
         };
     } catch (error) {
-        throw new Error('Failed to fetch random user');
+        console.error('Error fetching random user:', error);
+        throw error;
     }
 };
 
-module.exports = { getRandomUser };
+module.exports = getRandomUser;
