@@ -6,3 +6,11 @@ npm install axios@1.7.2 body-parser@1.20.2 cors@2.8.5 dotenv@16.4.5 express@4.19
 
 npm install
 
+node --watch app.js
+
+Control + presionar la url.
+
+El servidor se está ejecutando en http://localhost:3000
+
+![Resultados](resultado.png)
+
