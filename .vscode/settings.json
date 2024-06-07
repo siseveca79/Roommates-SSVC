@@ -1,7 +1,0 @@
-{
-    "editor.defaultFormatter": "ms-vscode.js-debug",
-    "eslint.format.enable": true,
-    "[javascript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    }
-}
