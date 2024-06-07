@@ -75,199 +75,236 @@
     </div>
   </div>
 
-  <div
-    class="modal fade"
-    id="exampleModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-body">
           <div class="border rounded p-2 m-auto p-4">
             <h4>Editar Gasto</h4>
             <hr class="bg-light w-25 mx-auto" />
-
+  
             <div class="d-flex flex-column align-items-center">
               <h6>Roommate</h6>
               <select class="form-control w-50 mb-2" id="roommatesSelectModal"></select>
               <h6>Descripción</h6>
-              <textarea class="form-control w-50 mb-2" id="descripcionModal">Articulos de limpieza</textarea>
-
+              <textarea class="form-control w-50 mb-2" id="descripcionModal"></textarea>
               <h6>Monto:</h6>
-              <input class="form-control w-50 mb-2" id="montoModal" type="number" value="20000" />
+              <input class="form-control w-50 mb-2" id="montoModal" type="number">
             </div>
             <div class="d-block my-1">
-              <button class="btn text-white m-auto" onclick="updateGasto()">Agregar</button>
+              <button class="btn text-white m-auto" onclick="updateGasto()">Guardar Cambios</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js "
-    crossorigin="anonymous"
-  ></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"
-  ></script>
+  <!-- Tu script personalizado -->
 
 
   <script>
+if (typeof jQuery == 'undefined') {
+      console.log('jQuery no está cargado');
+    } else {
+      console.log('jQuery está cargado');
+    }
+
+    // Verifica si Bootstrap modal está disponible
+    if (typeof $.fn.modal === 'undefined') {
+      console.log('Bootstrap modal no está disponible');
+    }
+
+    const updateGasto = async () => {
+      const roommateSelected = $("#roommatesSelectModal").val();
+      const descripcion = $("#descripcionModal").val();
+      const monto = Number($("#montoModal").val());
+      const response = await fetch(`http://localhost:3000/gasto?id=${gastoEditing}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          roommate: roommateSelected,
+          descripcion,
+          monto,
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        gastoEditing = null;
+        imprimir();
+        $('#exampleModal').modal('hide'); // Oculta el modal después de actualizar el gasto
+      } else {
+        console.log("Error updating expense:", response.statusText);
+      }
+    };
+  
+    // Función para editar un gasto y abrir el modal
+    const editGastoAndOpenModal = (id, roommate, descripcion, monto) => {
+      editGasto(id, roommate, descripcion, monto); // Llama a editGasto() primero
+    };
+  
+    // Función para editar un gasto y mostrarlo en el modal
+    const editGasto = (id, roommate, descripcion, monto) => {
+      console.log('Editing gasto with id:', id);
+      console.log('Roommate:', roommate);
+      console.log('Descripción:', descripcion);
+      console.log('Monto:', monto);
+  
+      gastoEditing = id;
+      $("#roommatesSelectModal").val(roommate); 
+      $("#descripcionModal").val(descripcion); 
+      $("#montoModal").val(monto);
+  
+      // Abre el modal manualmente después de establecer los valores
+      $('#exampleModal').modal('show');
+      
+      console.log('Modal values set.');
+    };
+  
     let roommates = [];
     let gastos = [];
     let gastoEditing = null;
-
+  
     const getRoommates = async () => {
-        const res = await fetch("http://localhost:3000/roommate");
-        const data = await res.json();
-        roommates = data.roommates;
+      const res = await fetch("http://localhost:3000/roommate");
+      const data = await res.json();
+      roommates = data.roommates;
     };
-
+  
     const getGastos = async () => {
-        const res = await fetch("http://localhost:3000/gasto");
-        const data = await res.json();
-        gastos = data.gastos;
+      const res = await fetch("http://localhost:3000/gasto");
+      const data = await res.json();
+      gastos = data.gastos;
     };
-
+  
+    
     const imprimir = async () => {
-        try {
-            await getRoommates();
-            await getGastos();
-            $("#roommates").html("");
-            $("#roommatesSelect").html("");
-            $("#roommatesSelectModal").html("");
-            roommates.forEach((r) => {
-                $("#roommatesSelect").append(`
-                    <option value="${r.nombre}">${r.nombre}</option>
-                `);
-                $("#roommatesSelectModal").append(`
-                    <option value="${r.nombre}">${r.nombre}</option>
-                `);
-                $("#roommates").append(`
-                    <tr>
-                        <td>${r.nombre}</td>
-                        <td class="text-danger">${r.debe ? r.debe : "-"}</td>
-                        <td class="text-success">${r.recibe ? r.recibe : "-"}</td>
-                    </tr>
-                `);
-            });
-            $("#gastosHistorial").html("");
-            gastos.forEach((g) => {
-                $("#gastosHistorial").append(`
-                    <tr>
-                        <td>${g.roommate}</td>
-                        <td>${g.descripcion}</td>
-                        <td>${g.monto}</td>
-                        <td class="d-flex align-items-center justify-content-between">
-                            <i class="fas fa-edit text-warning" onclick="editGasto('${g.id}', '${g.roommate}', '${g.descripcion}', '${g.monto}')" data-toggle="modal" data-target="#exampleModal"></i>
-                            <i class="fas fa-trash-alt text-danger" onclick="deleteGasto('${g.id}')" ></i>
-                        </td>
-                    </tr>
-                `);
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    };
+  try {
+    await getRoommates();
+    await getGastos();
+    console.log("Roommates:", roommates);
+    console.log("Gastos:", gastos);
+
+    $("#roommates").html("");
+    $("#roommatesSelect").html("");
+    $("#roommatesSelectModal").html("");
+
+    roommates.forEach((r) => {
+      $("#roommatesSelect").append(`
+        <option value="${r.nombre}">${r.nombre}</option>
+      `);
+      $("#roommatesSelectModal").append(`
+        <option value="${r.nombre}">${r.nombre}</option>
+      `);
+      $("#roommates").append(`
+        <tr>
+          <td>${r.nombre}</td>
+          <td class="text-danger">${r.debe ? r.debe : "-"}</td>
+          <td class="text-success">${r.recibe ? r.recibe : "-"}</td>
+        </tr>
+      `);
+    });
+
+    $("#gastosHistorial").html("");
+    gastos.forEach((g) => {
+      $("#gastosHistorial").append(`
+        <tr>
+          <td>${g.roommate}</td>
+          <td>${g.descripcion}</td>
+          <td>${g.monto}</td>
+          <td class="d-flex align-items-center justify-content-between">
+            <i class="fas fa-edit text-warning" onclick="editGastoAndOpenModal('${g.id}', '${g.roommate}', '${g.descripcion}', '${g.monto}')"></i>
+            <i class="fas fa-trash-alt text-danger" onclick="deleteGasto('${g.id}')" ></i>
+          </td>
+        </tr>
+      `);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
     const nuevoRoommate = () => {
-        fetch("http://localhost:3000/roommate", { method: "POST" })
-            .then((res) => res.json())
-            .then(() => {
-                imprimir();
-            });
+      fetch("http://localhost:3000/roommate", { method: "POST" })
+        .then((res) => res.json())
+        .then(() => {
+          imprimir();
+        });
     };
-
+  
     const agregarGasto = async () => {
-        const roommateSelected = $("#roommatesSelect").val();
-        const descripcion = $("#descripcion").val();
-        const monto = Number($("#monto").val());
-        await fetch("http://localhost:3000/gasto", {
-            method: "POST",
-            body: JSON.stringify({
-                roommate: roommateSelected,
-                descripcion,
-                monto
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        imprimir();
-    };
-
-    const deleteGasto = async (id) => {
-        await fetch("http://localhost:3000/gasto?id=" + id, {
-            method: "DELETE",
-        });
-        imprimir();
-    };
-
-    const updateGasto = async () => {
-        const roommateSelected = $("#roommatesSelectModal").val();
-        const descripcion = $("#descripcionModal").val();
-        const monto = Number($("#montoModal").val());
-        const response = await fetch(`http://localhost:3000/gasto?id=${gastoEditing}`, {
-            method: "PUT",
-            body: JSON.stringify({
-                roommate: roommateSelected,
-                descripcion,
-                monto
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        if (response.ok) {
-            gastoEditing = null;
-            imprimir();
-        } else {
-            console.log("Error updating expense:", response.statusText);
+      const roommateSelected = $("#roommatesSelect").val();
+      const descripcion = $("#descripcion").val();
+      const monto = Number($("#monto").val());
+      await fetch("http://localhost:3000/gasto", {
+        method: "POST",
+        body: JSON.stringify({
+          roommate: roommateSelected,
+          descripcion,
+          monto,
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
+      });
+      imprimir();
     };
-
-    const editGasto = (id, roommate, descripcion, monto) => {
-        gastoEditing = id;
-        $("#roommatesSelectModal").val(roommate);
-        $("#descripcionModal").val(descripcion);
-        $("#montoModal").val(monto);
+  
+    const deleteGasto = async (id) => {
+      await fetch("http://localhost:3000/gasto?id=" + id, {
+        method: "DELETE",
+      });
+      imprimir();
     };
-
+  
+    // Llamamos a imprimir() para cargar los datos al cargar la página
     imprimir();
-</script>
-
-
-
+  </script>
+  
 
 
   
+  
 
-  <style>
-    body {
-      text-align: center;
-      color: white;
-      text-shadow: 0px 0px 3px black;
-      background: #23036a;
-    }
 
-    .modal-body {
-      color: black;
-      text-shadow: none;
-    }
 
-    button {
-      background: #6200ee !important;
-    }
-    i {
-      cursor: pointer;
-    }
-  </style>
+
+
+
+
+
+
+
+
+
+<style>
+  body {
+    text-align: center;
+    color: white;
+    text-shadow: 0px 0px 3px black;
+    background: #23036a;
+  }
+
+  .modal-body {
+    color: black;
+    text-shadow: none;
+  }
+
+  button {
+    background: #6200ee !important;
+  }
+  i {
+    cursor: pointer;
+  }
+</style>
+
+  
 </body>
 </html>

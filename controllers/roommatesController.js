@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const fetch = require('node-fetch');
 const { getRandomUser } = require('../helpers/getRandomUser');
 
+// Función para obtener todos los roommates
 const getRoommates = (req, res) => {
     fs.readFile(path.join(__dirname, '../data/roommates.json'), 'utf8', (err, data) => {
         if (err) {
@@ -14,6 +15,7 @@ const getRoommates = (req, res) => {
     });
 };
 
+// Función para agregar un nuevo roommate
 const addRoommate = async (req, res) => {
     try {
         const newUser = await getRandomUser();
